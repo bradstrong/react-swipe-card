@@ -27,15 +27,16 @@
     "swipe"
   ],
   "devDependencies": {
-    "@kadira/storybook": "^2.35.2",
-    "@kadira/storybook-deployer": "^1.2.0",
+    "@storybook/addon-actions": "^3.2.6",
+    "@storybook/react": "3.2.8",
+    "@storybook/storybook-deployer": "^2.0.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-react": "^6.3.13",
     "babel-preset-stage-0": "^6.3.13",
     "conventional-changelog": "^1.1.0",
     "conventional-changelog-cli": "^1.2.0",
-    "superheroes": "^1.0.0",
-    "release-it": "^2.5.3"
+    "release-it": "^2.5.3",
+    "superheroes": "^1.0.0"
   },
   "peerDependencies": {
     "react": "^15.4.2",
