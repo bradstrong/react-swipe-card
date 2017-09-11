@@ -1,12 +1,3 @@
-html {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 body {
   margin: 0 auto;
   padding: 0;
@@ -30,13 +21,20 @@ h1, h2 {
   margin: 20px auto;
   position: relative;
   min-height: 300px;
-  max-height: 100px;
-  width: 300px;
+  /* max-height: 100px;
+  width: 300px; */
   overflow: hidden;
   border: 1px solid #e5e5e5;
 }
 
 .card {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
   background-color: white;
   background-size: cover;
   position: absolute;
@@ -44,17 +42,23 @@ h1, h2 {
   height: 200px;
   width: 180px;
   margin: 0 auto;
+
+  cursor: pointer;
+}
+
+.dragging {
   transition: box-shadow .3s;
   box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-  cursor: pointer;
 }
 
 .animate {
   transition: transform .3s;
+  transition-timing-function: ease-in-out;
   box-shadow: none;
+  filter: blur(1px);
 }
 
-.inactive {
+.ready {
   box-shadow: none;
 }
 

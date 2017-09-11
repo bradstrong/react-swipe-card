@@ -13,10 +13,14 @@ class DraggableCard extends Component {
       initialPosition: { x: 0, y: 0 },
       startPosition: { x: 0, y: 0 },
       animation: null,
-      pristine: true
+      pristine: true,
+      ready: true,
+      dragging: null
     }
     this.resetPosition = this.resetPosition.bind(this)
     this.handlePan = this.handlePan.bind(this)
+
+    this.resetAnimation = this.resetAnimation.bind(this)
   }
   resetPosition () {
     const { x, y } = this.props.containerSize
@@ -34,13 +38,25 @@ class DraggableCard extends Component {
       startPosition: { x: 0, y: 0 }
     })
   }
+
+  resetAnimation () {
+    const { x, y, animation, initialPosition } = this.state
+    if(animation && initialPosition.x === x && initialPosition.y === y) {
+      this.setState({
+        animation: false,
+        ready: true
+      });
+    }
+  }
   
   panstart () {
     const { x, y } = this.state
     this.setState({
       animation: false,
       startPosition: { x, y },
-      pristine: false
+      pristine: false,
+      ready: false,
+      dragging: true
     })
   }
   panend (ev) {
@@ -63,7 +79,10 @@ class DraggableCard extends Component {
       this.props[`onOutScreen${direction}`](this.props.index)
     } else {
       this.resetPosition()
-      this.setState({ animation: true })
+      this.setState({
+        animation: true,
+        dragging: false
+      })
     }
 
   }
@@ -91,6 +110,7 @@ class DraggableCard extends Component {
       y: (y + deltaY)
     }
   }
+
   componentDidMount () {
     this.hammer = new Hammer.Manager(ReactDOM.findDOMNode(this))
     this.hammer.add(new Hammer.Pan({ threshold: 2 }))
@@ -110,9 +130,14 @@ class DraggableCard extends Component {
     window.removeEventListener('resize', this.resetPosition)
   }
   render () {
-    const { x, y, animation, pristine } = this.state
+    const { x, y, animation, pristine, ready, dragging, initialPosition } = this.state
     const style = translate3d(x, y)
-    return <SimpleCard {...this.props} style={style} className={animation ? 'animate' : pristine ? 'inactive' : '' } />
+    const animationState = animation ? 'animate' : ''
+    const pristineState = pristine ? 'pristine' : ''
+    const readyState = ready ? 'ready' : ''
+    const draggingState = dragging ? 'dragging' : ''
+
+    return <SimpleCard {...this.props} style={style} className={ `${animationState} ${pristineState} ${readyState} ${draggingState}`} onCardReturn={this.resetAnimation} animation={animation} pristine={pristine} />
   }
 }
 

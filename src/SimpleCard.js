@@ -6,9 +6,10 @@ class Card extends Component {
   constructor (props) {
     super(props)
     this.state = { initialPosition: { x: 0, y: 0 } }
-    this.setInitialPosition = this.setInitialPosition.bind(this)
+    this.setPosition = this.setPosition.bind(this)
+    this.handleTransitionEnd = this.handleTransitionEnd.bind(this)
   }
-  setInitialPosition () {
+  setPosition () {
     const card = ReactDOM.findDOMNode(this)
     const initialPosition = {
       x: Math.round((this.props.containerSize.x - card.offsetWidth) / 2),
@@ -18,12 +19,18 @@ class Card extends Component {
   }
 
   componentDidMount () {
-    this.setInitialPosition()
-    window.addEventListener('resize', this.setInitialPosition)
+    this.setPosition()
+    window.addEventListener('resize', this.setPosition)
   }
 
   componentWillUnmount () {
-    window.removeEventListener('resize', this.setInitialPosition)
+    window.removeEventListener('resize', this.setPosition)
+  }
+
+  handleTransitionEnd (ev) {
+    if (ev.propertyName === 'transform') {
+    this.props.onCardReturn();
+    }
   }
 
   render () {
@@ -36,7 +43,7 @@ class Card extends Component {
     }
 
     return (
-      <div style={style} className={`card ${className}`}>
+      <div style={style} className={`card ${className}`} onTransitionEnd={this.handleTransitionEnd}>
         {this.props.children}
       </div>
     )
