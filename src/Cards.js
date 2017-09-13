@@ -1,6 +1,71 @@
 import React, { Component, cloneElement } from 'react'
 import ReactDOM from 'react-dom'
 import { DIRECTIONS } from './utils'
+import styled from 'styled-components'
+
+const AlertWrapper = styled.div`
+  width: 45%;
+  min-height: 10%;
+  position: absolute;
+  z-index: 9999;
+  opacity: 0;
+  color: white;
+  vertical-align: middle;
+  line-height: 3rem;
+  transition-property: opacity; transition-duration: .5s;
+
+  // visible
+  ${props => props.visible ? `opacity: 1; transition-property: opacity; transition-duration: .5s;` : ''}
+
+  // top
+  ${props => props.position === 'top' ? `
+    background: purple;
+    border-radius: 50px;
+    transform: translate(-50%, 0);
+    margin-left: 50%;
+    ` : ''}
+
+
+  // right
+  ${props => props.position === 'right' ? `
+    top: 0;
+    right: 0;
+    background: green;
+    border-top-left-radius: 50px;
+    border-bottom-left-radius: 50px;
+    ` : ''}
+  
+  // bottom
+  ${props => props.position === 'bottom' ? `
+    bottom: 0;
+    background: blue;
+    border-top-left-radius: 50px;
+    border-radius: 50px;
+    transform: translate(-50%, 0);
+    margin-left: 50%;
+    ` : ''}
+
+   // left
+   ${props => props.position === 'left' ? `
+   top: 0;
+   left: 0;
+   background: red;
+   border-top-right-radius: 50px;
+   border-bottom-right-radius: 50px;
+    ` : ''}
+`
+AlertWrapper.displayName = 'AlertWrapper';
+
+const Stage = styled.div`
+  margin: 20px auto;
+  position: relative;
+  min-height: 300px;
+  overflow: hidden;
+`
+Stage.displayName = 'Stage';
+
+const Stack = styled.div``
+Stack.displayName = 'Stack';
 
 class SwipeCards extends Component {
   constructor (props) {
@@ -14,17 +79,26 @@ class SwipeCards extends Component {
       containerSize: { x: 0, y: 0 }
     }
     this.removeCard = this.removeCard.bind(this)
+    this.displayAlert = this.displayAlert.bind(this)
     this.setSize = this.setSize.bind(this)
   }
+
+  displayAlert (side, cardId) {
+    const { alertDuration } = this.props
+    setTimeout(() => this.setState({ [`alert${side}`]: false }), alertDuration)
+    this.setState({
+      [`alert${side}`]: true
+    })
+  }
+
   removeCard (side, cardId) {
     const { children, onEnd } = this.props
-    setTimeout(() => this.setState({ [`alert${side}`]: false }), 300)
-    
     if (children.length === (this.state.index + 1) && onEnd) onEnd()
+    
+    this.displayAlert(side, cardId)
 
     this.setState({
       index: this.state.index + 1,
-      [`alert${side}`]: true
     })
   }
   
@@ -32,12 +106,13 @@ class SwipeCards extends Component {
     this.setSize()
     window.addEventListener('resize', this.setSize)
   }
+
    componentWillUnmount () {
     window.removeEventListener('resize', this.setSize)
   }
 
   setSize () {
-    const container = ReactDOM.findDOMNode(this)
+    const container = this.stageElement;
     const containerSize = {
       x: container.offsetWidth,
       y: container.offsetHeight
@@ -47,15 +122,16 @@ class SwipeCards extends Component {
 
   render () {
     const { index, containerSize } = this.state
-    const { children, className, onSwipeTop, onSwipeBottom } = this.props
-    if (!containerSize.x || !containerSize.y) return  <div className={className} />
+    const { children, className, onSwipeTop, onSwipeBottom, swipeTolerance } = this.props
+    if (!containerSize.x || !containerSize.y) return  <Stage innerRef={el => this.stageElement = el}/>
 
-    const _cards = children.reduce((memo, c, i) => {
+    const renderCards = children.reduce((memo, c, i) => {
       if (index > i) return memo
       const props = {
         key: i,
         containerSize,
-        index: children.length - index,
+        index: children.length - i,
+        swipeTolerance,
         ...DIRECTIONS.reduce((m, d) => 
           ({ ...m, [`onOutScreen${d}`]: () => this.removeCard(d) }), {}),
         active: index === i
@@ -64,18 +140,23 @@ class SwipeCards extends Component {
     }, [])
     
     return (
-      <div className={className}>
+      <Stage innerRef={el => this.stageElement = el}>
         {DIRECTIONS.map(d => 
-          <div key={d} className={`${this.state[`alert${d}`] ? 'alert-visible': ''} alert-${d.toLowerCase()} alert`}>
+          <AlertWrapper key={d} position={`${d.toLowerCase()}`} visible={this.state[`alert${d}`]} className={`alert-${d.toLowerCase()}`}>
             {this.props[`alert${d}`]}
-          </div>
+          </AlertWrapper>
         )}
-        <div id='cards'>
-          {_cards}
-        </div>
-      </div>
+        <Stack>
+          {renderCards}
+        </Stack>
+      </Stage>
     )
   }
+}
+
+SwipeCards.defaultProps = {
+  swipeTolerance : 50,
+  alertDuration: 300
 }
 
 export default SwipeCards

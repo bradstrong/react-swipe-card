@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import Hammer from 'hammerjs'
 import ReactDOM from 'react-dom'
 import SimpleCard from './SimpleCard'
-import { translate3d } from './utils'
 
 class DraggableCard extends Component {
   constructor (props) {
@@ -61,14 +60,15 @@ class DraggableCard extends Component {
   }
   panend (ev) {
     const screen = this.props.containerSize
+    const swipeTolerance = this.props.swipeTolerance
     const card = ReactDOM.findDOMNode(this)
 
     const getDirection = () => {
       switch (true) {
-        case (this.state.x < -50): return 'Left'
-        case (this.state.x + (card.offsetWidth - 50) > screen.x): return 'Right'
-        case (this.state.y < -50): return 'Top'
-        case (this.state.y + (card.offsetHeight - 50) > screen.y): return 'Bottom'
+        case (this.state.x < swipeTolerance): return 'Left'
+        case (this.state.x + card.offsetWidth > screen.x - swipeTolerance): return 'Right'
+        case (this.state.y < swipeTolerance): return 'Top'
+        case (this.state.y + card.offsetHeight > screen.y - swipeTolerance): return 'Bottom'
         default: return false
       }
     }
@@ -131,13 +131,17 @@ class DraggableCard extends Component {
   }
   render () {
     const { x, y, animation, pristine, ready, dragging, initialPosition } = this.state
-    const style = translate3d(x, y)
-    const animationState = animation ? 'animate' : ''
-    const pristineState = pristine ? 'pristine' : ''
-    const readyState = ready ? 'ready' : ''
-    const draggingState = dragging ? 'dragging' : ''
 
-    return <SimpleCard {...this.props} style={style} className={ `${animationState} ${pristineState} ${readyState} ${draggingState}`} onCardReturn={this.resetAnimation} animation={animation} pristine={pristine} />
+
+    return <SimpleCard
+            {...this.props}
+            onCardReturn={this.resetAnimation}
+            animation={animation}
+            pristine={pristine}
+            dragging={dragging}
+            ready={ready}
+            x={x}
+            y={y} />
   }
 }
 
