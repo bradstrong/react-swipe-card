@@ -1,24 +1,32 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
-import { translate3d } from './utils'
 import styled from 'styled-components'
 
-const SimpleCard = styled.div`
+const BaseCard = styled.div`
   -webkit-touch-callout: none;
   user-select: none;
 
-  background-color: white;
+  background-color: #F8F3F3;
   background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center; 
   position: absolute;
-  background: #F8F3F3;
-  height: 200px;
-  width: 180px;
-  margin: 0 auto;
+  height: 50%;
+  width: 50%;
+  margin: 0;
   text-align: center;
 
-  cursor: pointer;
+  &:hover {
+    cursor: grab;
+  }
+
+  // &:active {
+  //   cursor: grabbing
+  // }
+
   transform: ${props => `translate3d(${props.initialX}px, ${props.initialY}px, 0px)`};
-  transform: ${props => `translate3d(${props.x}px, ${props.y}px, 0px)`};
   z-index: ${props => `${props.index}`};
 
   // dragging
@@ -36,7 +44,7 @@ const SimpleCard = styled.div`
   ${props => props.ready ? `box-shadow: none;` : ''}
 
 `
-SimpleCard.displayName = 'SimpleCard';
+BaseCard.displayName = 'BaseCard';
 
 class Card extends Component {
   constructor (props) {
@@ -47,8 +55,8 @@ class Card extends Component {
   }
   setPosition () {
     const initialPosition = {
-      x: Math.round((this.props.containerSize.x - this.simpleCardElement.offsetWidth) / 2),
-      y: Math.round((this.props.containerSize.y - this.simpleCardElement.offsetHeight) / 2)
+      x: Math.round((this.props.containerSize.x - this.BaseCardElement.offsetWidth) / 2),
+      y: Math.round((this.props.containerSize.y - this.BaseCardElement.offsetHeight) / 2)
     }
     this.setState({ initialPosition })
   }
@@ -71,21 +79,21 @@ class Card extends Component {
   render () {
     const { initialPosition: { x, y } } = this.state
     const { className = 'inactive', animation, pristine, dragging, ready, index} = this.props
-
     return (
-      <SimpleCard
-      {...this.props}
+      <BaseCard
         animation={animation}
         pristine={pristine}
         dragging={dragging}
         ready={ready}
-        innerRef={el => this.simpleCardElement = el}
+        innerRef={el => this.BaseCardElement = el}
         onTransitionEnd={this.handleTransitionEnd}
         initialX={x}
         initialY={y}
-        index={index}>
+        index={index}
+        className={this.constructor.displayName}
+        {...this.props} >
         {this.props.children}
-      </SimpleCard>
+      </BaseCard>
     )
   }
 }

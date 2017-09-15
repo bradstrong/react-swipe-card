@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import Hammer from 'hammerjs'
 import ReactDOM from 'react-dom'
-import SimpleCard from './SimpleCard'
+import BaseCard from './BaseCard'
+import { translate3d } from './utils'
 
 class DraggableCard extends Component {
   constructor (props) {
@@ -11,10 +12,10 @@ class DraggableCard extends Component {
       y: 0,
       initialPosition: { x: 0, y: 0 },
       startPosition: { x: 0, y: 0 },
-      animation: null,
+      animation: false,
       pristine: true,
       ready: true,
-      dragging: null
+      dragging: false
     }
     this.resetPosition = this.resetPosition.bind(this)
     this.handlePan = this.handlePan.bind(this)
@@ -78,11 +79,11 @@ class DraggableCard extends Component {
       this.props[`onSwipe${direction}`]()
       this.props[`onOutScreen${direction}`](this.props.index)
     } else {
-      this.resetPosition()
       this.setState({
         animation: true,
         dragging: false
       })
+      this.resetPosition()
     }
 
   }
@@ -131,17 +132,19 @@ class DraggableCard extends Component {
   }
   render () {
     const { x, y, animation, pristine, ready, dragging, initialPosition } = this.state
+    const translate = translate3d(x, y)
+    const style = { ...this.props.style, ...translate }
 
-
-    return <SimpleCard
-            {...this.props}
+    return <BaseCard
             onCardReturn={this.resetAnimation}
             animation={animation}
             pristine={pristine}
             dragging={dragging}
             ready={ready}
             x={x}
-            y={y} />
+            y={y}
+            style={style}
+            {...this.props} />
   }
 }
 

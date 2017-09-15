@@ -2,6 +2,7 @@ import React, { Component, cloneElement } from 'react'
 import ReactDOM from 'react-dom'
 import { DIRECTIONS } from './utils'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 
 const AlertWrapper = styled.div`
   width: 45%;
@@ -107,7 +108,7 @@ class SwipeCards extends Component {
     window.addEventListener('resize', this.setSize)
   }
 
-   componentWillUnmount () {
+  componentWillUnmount () {
     window.removeEventListener('resize', this.setSize)
   }
 
@@ -122,8 +123,17 @@ class SwipeCards extends Component {
 
   render () {
     const { index, containerSize } = this.state
-    const { children, className, onSwipeTop, onSwipeBottom, swipeTolerance } = this.props
+    const { children, className, onSwipeTop, onSwipeBottom, swipeTolerance, style } = this.props
     if (!containerSize.x || !containerSize.y) return  <Stage innerRef={el => this.stageElement = el}/>
+
+    const renderAlerts = DIRECTIONS.map(d => 
+      <AlertWrapper
+        key={d}
+        position={`${d.toLowerCase()}`}
+        visible={this.state[`alert${d}`]}>
+        {this.props[`alert${d}`]}
+      </AlertWrapper>
+    )
 
     const renderCards = children.reduce((memo, c, i) => {
       if (index > i) return memo
@@ -141,14 +151,8 @@ class SwipeCards extends Component {
     
     return (
       <Stage innerRef={el => this.stageElement = el}>
-        {DIRECTIONS.map(d => 
-          <AlertWrapper key={d} position={`${d.toLowerCase()}`} visible={this.state[`alert${d}`]} className={`alert-${d.toLowerCase()}`}>
-            {this.props[`alert${d}`]}
-          </AlertWrapper>
-        )}
-        <Stack>
-          {renderCards}
-        </Stack>
+        {renderAlerts}
+        <Stack>{renderCards}</Stack>
       </Stage>
     )
   }
@@ -157,6 +161,17 @@ class SwipeCards extends Component {
 SwipeCards.defaultProps = {
   swipeTolerance : 50,
   alertDuration: 300
+}
+
+SwipeCards.propTypes = {
+  /** Distance from edge of stage a card must be in order to be 'swiped' */
+  swipeTolerance: PropTypes.number.isRequired,
+
+   /** Time (in milliseconds) that alerts will be visible on screen */
+  alertDuration: PropTypes.number.isRequired,
+
+  /** Function to fire when no cards remain */
+  onEnd: PropTypes.func
 }
 
 export default SwipeCards
