@@ -1,8 +1,7 @@
-import React, { Component, cloneElement } from 'react'
-import ReactDOM from 'react-dom'
-import { DIRECTIONS } from './utils'
-import styled from 'styled-components'
-import PropTypes from 'prop-types'
+import React, {Component, cloneElement} from 'react';
+import {DIRECTIONS} from './utils';
+import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
 const AlertWrapper = styled.div`
   width: 45%;
@@ -13,48 +12,51 @@ const AlertWrapper = styled.div`
   color: white;
   vertical-align: middle;
   line-height: 3rem;
-  transition-property: opacity; transition-duration: .5s;
+  transition-property: opacity;
+  transition-duration: 0.5s;
 
   // visible
-  ${props => props.visible ? `opacity: 1; transition-property: opacity; transition-duration: .5s;` : ''}
-
-  // top
-  ${props => props.position === 'top' ? `
+  ${props =>
+    props.visible
+      ? `opacity: 1; transition-property: opacity; transition-duration: .5s;`
+      : ''} ${props =>
+      props.position === 'top'
+        ? `
     background: purple;
     border-radius: 50px;
     transform: translate(-50%, 0);
     margin-left: 50%;
-    ` : ''}
-
-
-  // right
-  ${props => props.position === 'right' ? `
+    `
+        : ''} ${props =>
+      props.position === 'right'
+        ? `
     top: 0;
     right: 0;
     background: green;
     border-top-left-radius: 50px;
     border-bottom-left-radius: 50px;
-    ` : ''}
-  
-  // bottom
-  ${props => props.position === 'bottom' ? `
+    `
+        : ''} ${props =>
+      props.position === 'bottom'
+        ? `
     bottom: 0;
     background: blue;
     border-top-left-radius: 50px;
     border-radius: 50px;
     transform: translate(-50%, 0);
     margin-left: 50%;
-    ` : ''}
-
-   // left
-   ${props => props.position === 'left' ? `
+    `
+        : ''} ${props =>
+      props.position === 'left'
+        ? `
    top: 0;
    left: 0;
    background: red;
    border-top-right-radius: 50px;
    border-bottom-right-radius: 50px;
-    ` : ''}
-`
+    `
+        : ''};
+`;
 AlertWrapper.displayName = 'AlertWrapper';
 
 const Stage = styled.div`
@@ -62,116 +64,150 @@ const Stage = styled.div`
   position: relative;
   min-height: 300px;
   overflow: hidden;
-`
+`;
 Stage.displayName = 'Stage';
 
-const Stack = styled.div``
+const Stack = styled.div``;
 Stack.displayName = 'Stack';
 
 class SwipeCards extends Component {
-  constructor (props) {
-    super(props)
+  constructor(props) {
+    super(props);
     this.state = {
       index: 0,
       alertLeft: false,
       alertRight: false,
       alertTop: false,
       alertBottom: false,
-      containerSize: { x: 0, y: 0 }
-    }
-    this.removeCard = this.removeCard.bind(this)
-    this.displayAlert = this.displayAlert.bind(this)
-    this.setSize = this.setSize.bind(this)
+      containerSize: {x: 0, y: 0},
+    };
+    this.removeCard = this.removeCard.bind(this);
+    this.displayAlert = this.displayAlert.bind(this);
+    this.setSize = this.setSize.bind(this);
   }
 
-  displayAlert (side, cardId) {
-    const { alertDuration } = this.props
-    setTimeout(() => this.setState({ [`alert${side}`]: false }), alertDuration)
+  displayAlert(side) {
+    const {alertDuration} = this.props;
+    setTimeout(() => this.setState({[`alert${side}`]: false}), alertDuration);
     this.setState({
-      [`alert${side}`]: true
-    })
+      [`alert${side}`]: true,
+    });
   }
 
-  removeCard (side, cardId) {
-    const { children, onEnd } = this.props
-    if (children.length === (this.state.index + 1) && onEnd) onEnd()
-    
-    this.displayAlert(side, cardId)
+  removeCard(side, cardId) {
+    const {children, onEnd} = this.props;
+    if (children.length === this.state.index + 1 && onEnd) onEnd();
+
+    this.displayAlert(side, cardId);
 
     this.setState({
       index: this.state.index + 1,
-    })
-  }
-  
-  componentDidMount () {
-    this.setSize()
-    window.addEventListener('resize', this.setSize)
+    });
   }
 
-  componentWillUnmount () {
-    window.removeEventListener('resize', this.setSize)
+  componentDidMount() {
+    this.setSize();
+    window.addEventListener('resize', this.setSize);
   }
 
-  setSize () {
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.setSize);
+  }
+
+  setSize() {
     const container = this.stageElement;
     const containerSize = {
       x: container.offsetWidth,
-      y: container.offsetHeight
-    }
-    this.setState({ containerSize })
+      y: container.offsetHeight,
+    };
+    this.setState({containerSize});
   }
 
-  render () {
-    const { index, containerSize } = this.state
-    const { children, className, onSwipeTop, onSwipeBottom, swipeTolerance, style } = this.props
-    if (!containerSize.x || !containerSize.y) return  <Stage innerRef={el => this.stageElement = el}/>
+  render() {
+    const {index, containerSize} = this.state;
+    const {
+      children,
+      //eslint-disable-next-line no-unused-vars
+      onSwipeTop,
+      //eslint-disable-next-line no-unused-vars
+      onSwipeRight,
+      //eslint-disable-next-line no-unused-vars
+      onSwipeBottom,
+      //eslint-disable-next-line no-unused-vars
+      onSwipeLeft,
+      swipeTolerance,
+    } = this.props;
+    if (!containerSize.x || !containerSize.y)
+      return <Stage innerRef={el => (this.stageElement = el)} />;
 
-    const renderAlerts = DIRECTIONS.map(d => 
+    const renderAlerts = DIRECTIONS.map(d => (
       <AlertWrapper
         key={d}
         position={`${d.toLowerCase()}`}
         visible={this.state[`alert${d}`]}>
         {this.props[`alert${d}`]}
       </AlertWrapper>
-    )
+    ));
 
     const renderCards = children.reduce((memo, c, i) => {
-      if (index > i) return memo
+      if (index > i) return memo;
       const props = {
         key: i,
         containerSize,
         index: children.length - i,
         swipeTolerance,
-        ...DIRECTIONS.reduce((m, d) => 
-          ({ ...m, [`onOutScreen${d}`]: () => this.removeCard(d) }), {}),
-        active: index === i
-      }
-      return [ cloneElement(c, props), ...memo ]
-    }, [])
-    
+        ...DIRECTIONS.reduce(
+          (m, d) => ({...m, [`onOutScreen${d}`]: () => this.removeCard(d)}),
+          {},
+        ),
+        active: index === i,
+      };
+      return [cloneElement(c, props), ...memo];
+    }, []);
+
     return (
-      <Stage innerRef={el => this.stageElement = el}>
+      <Stage innerRef={el => (this.stageElement = el)}>
         {renderAlerts}
         <Stack>{renderCards}</Stack>
       </Stage>
-    )
+    );
   }
-}
-
-SwipeCards.defaultProps = {
-  swipeTolerance : 50,
-  alertDuration: 300
 }
 
 SwipeCards.propTypes = {
   /** Distance from edge of stage a card must be in order to be 'swiped' */
   swipeTolerance: PropTypes.number.isRequired,
 
-   /** Time (in milliseconds) that alerts will be visible on screen */
+  /** Time (in milliseconds) that alerts will be visible on screen */
   alertDuration: PropTypes.number.isRequired,
 
   /** Function to fire when no cards remain */
-  onEnd: PropTypes.func
-}
+  onEnd: PropTypes.func,
 
-export default SwipeCards
+  /** Function to fire whe a card is swiped up */
+  onSwipeTop: PropTypes.func,
+
+  /** Function to fire when a card is swiped right */
+  onSwipeRight: PropTypes.func,
+
+  /** Function to fire when a card is swiped down */
+  onSwipeBottom: PropTypes.func,
+
+  /** Function to fire when a card is swiped left */
+  onSwipeLeft: PropTypes.func,
+
+  /** Individual cards to render in the stack */
+  children: PropTypes.arrayOf(PropTypes.element),
+};
+
+SwipeCards.defaultProps = {
+  swipeTolerance: 50,
+  alertDuration: 300,
+  onEnd: null,
+  onSwipeTop: null,
+  onSwipeRight: null,
+  onSwipeBottom: null,
+  onSwipeLeft: null,
+};
+
+export default SwipeCards;

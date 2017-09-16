@@ -1,9 +1,7 @@
 const CardStackData = [
-    {title : 'Alexandre'},
-    {title : 'Thomas'},
-    {title : 'Lucien'}
-    ]
+  {title: 'Alexandre'},
+  {title: 'Thomas'},
+  {title: 'Lucien'},
+];
 
-export {
-    CardStackData
-}
+export {CardStackData};

@@ -1,11 +1,20 @@
-import React, { createElement } from 'react'
+import {createElement} from 'react';
+import BaseCard from './BaseCard';
+import DraggableCard from './DraggableCard';
+import PropTypes from 'prop-types';
 
-import BaseCard from './BaseCard'
-import DraggableCard from './DraggableCard'
+const Card = ({active = false, ...props}) => {
+  const component = active ? DraggableCard : BaseCard;
+  return createElement(component, props);
+};
 
-const Card = ({ active = false, ...props }) => {
-  const component = active ? DraggableCard : BaseCard
-  return createElement(component, props)
-}
+Card.propTypes = {
+  /** Used to identify the top most card in the stack */
+  active: PropTypes.bool,
+};
 
-export default Card
+Card.defaultProps = {
+  active: false,
+};
+
+export default Card;
